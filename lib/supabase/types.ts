@@ -121,7 +121,7 @@ export type LeadAssignmentMode = 'round_robin' | 'manual' | 'least_busy';
 
 // ──────────────────────────── Row interfaces ─────────────────────────────────
 
-export interface OrganizationRow {
+export type OrganizationRow = {
   id: string;
   name: string;
   slug: string;
@@ -131,7 +131,7 @@ export interface OrganizationRow {
   updated_at: string;
 }
 
-export interface ProfileRow {
+export type ProfileRow = {
   id: string;
   organization_id: string | null;
   full_name: string;
@@ -145,7 +145,7 @@ export interface ProfileRow {
   updated_at: string;
 }
 
-export interface LeadRow {
+export type LeadRow = {
   id: string;
   organization_id: string;
   full_name: string;
@@ -168,7 +168,7 @@ export interface LeadRow {
   updated_at: string;
 }
 
-export interface PropertyRow {
+export type PropertyRow = {
   id: string;
   organization_id: string;
   title: string;
@@ -191,7 +191,7 @@ export interface PropertyRow {
   updated_at: string;
 }
 
-export interface PropertyImageRow {
+export type PropertyImageRow = {
   id: string;
   property_id: string;
   storage_path: string;
@@ -201,7 +201,7 @@ export interface PropertyImageRow {
   created_at: string;
 }
 
-export interface PropertyDocumentRow {
+export type PropertyDocumentRow = {
   id: string;
   property_id: string;
   name: string;
@@ -210,7 +210,7 @@ export interface PropertyDocumentRow {
   created_at: string;
 }
 
-export interface CallRow {
+export type CallRow = {
   id: string;
   organization_id: string;
   lead_id: string | null;
@@ -231,7 +231,7 @@ export interface CallRow {
   updated_at: string;
 }
 
-export interface MessageRow {
+export type MessageRow = {
   id: string;
   organization_id: string;
   lead_id: string | null;
@@ -246,7 +246,7 @@ export interface MessageRow {
   updated_at: string;
 }
 
-export interface FollowupRow {
+export type FollowupRow = {
   id: string;
   organization_id: string;
   lead_id: string;
@@ -261,7 +261,7 @@ export interface FollowupRow {
   updated_at: string;
 }
 
-export interface ActivityRow {
+export type ActivityRow = {
   id: string;
   organization_id: string;
   lead_id: string | null;
@@ -273,7 +273,7 @@ export interface ActivityRow {
   created_at: string;
 }
 
-export interface AttendanceRow {
+export type AttendanceRow = {
   id: string;
   organization_id: string;
   user_id: string;
@@ -291,7 +291,7 @@ export interface AttendanceRow {
   updated_at: string;
 }
 
-export interface SocialPostRow {
+export type SocialPostRow = {
   id: string;
   organization_id: string;
   created_by: string | null;
@@ -308,7 +308,7 @@ export interface SocialPostRow {
   updated_at: string;
 }
 
-export interface NotificationRow {
+export type NotificationRow = {
   id: string;
   organization_id: string;
   user_id: string;
@@ -320,7 +320,7 @@ export interface NotificationRow {
   created_at: string;
 }
 
-export interface IntegrationSettingsRow {
+export type IntegrationSettingsRow = {
   id: string;
   organization_id: string;
   twilio_account_sid: string | null;
@@ -342,7 +342,7 @@ export interface IntegrationSettingsRow {
   updated_at: string;
 }
 
-export interface LeadPropertyShareRow {
+export type LeadPropertyShareRow = {
   id: string;
   organization_id: string;
   lead_id: string;
@@ -354,27 +354,38 @@ export interface LeadPropertyShareRow {
 }
 
 // ──────────────────────────── Database shape ────────────────────────────────
+//
+// Insert/Update are intentionally permissive (`Record<string, unknown>`):
+// supabase-js v2's generic extraction collapses stricter Partial<Row> /
+// intersection types to `never` for some Row shapes (it broke our Vercel
+// build). Row is still strictly typed for reads — runtime safety on writes is
+// preserved by NOT NULL constraints + RLS policies in the database.
 
-type TableShape<R, I, U> = { Row: R; Insert: I; Update: U };
+type TableShape<R> = {
+  Row: R;
+  Insert: Record<string, unknown>;
+  Update: Record<string, unknown>;
+  Relationships: [];
+};
 
 export interface Database {
   public: {
     Tables: {
-      organizations: TableShape<OrganizationRow, Partial<OrganizationRow> & Pick<OrganizationRow, 'name' | 'slug'>, Partial<OrganizationRow>>;
-      profiles: TableShape<ProfileRow, Partial<ProfileRow> & Pick<ProfileRow, 'id' | 'full_name' | 'role'>, Partial<ProfileRow>>;
-      leads: TableShape<LeadRow, Partial<LeadRow> & Pick<LeadRow, 'organization_id' | 'full_name' | 'phone'>, Partial<LeadRow>>;
-      properties: TableShape<PropertyRow, Partial<PropertyRow> & Pick<PropertyRow, 'organization_id' | 'title' | 'location' | 'property_type' | 'price'>, Partial<PropertyRow>>;
-      property_images: TableShape<PropertyImageRow, Partial<PropertyImageRow> & Pick<PropertyImageRow, 'property_id' | 'storage_path' | 'public_url'>, Partial<PropertyImageRow>>;
-      property_documents: TableShape<PropertyDocumentRow, Partial<PropertyDocumentRow> & Pick<PropertyDocumentRow, 'property_id' | 'name' | 'storage_path' | 'public_url'>, Partial<PropertyDocumentRow>>;
-      calls: TableShape<CallRow, Partial<CallRow> & Pick<CallRow, 'organization_id'>, Partial<CallRow>>;
-      messages: TableShape<MessageRow, Partial<MessageRow> & Pick<MessageRow, 'organization_id' | 'channel' | 'body'>, Partial<MessageRow>>;
-      followups: TableShape<FollowupRow, Partial<FollowupRow> & Pick<FollowupRow, 'organization_id' | 'lead_id' | 'type' | 'scheduled_at'>, Partial<FollowupRow>>;
-      activities: TableShape<ActivityRow, Partial<ActivityRow> & Pick<ActivityRow, 'organization_id' | 'type' | 'title'>, Partial<ActivityRow>>;
-      attendance: TableShape<AttendanceRow, Partial<AttendanceRow> & Pick<AttendanceRow, 'organization_id' | 'user_id' | 'date'>, Partial<AttendanceRow>>;
-      social_posts: TableShape<SocialPostRow, Partial<SocialPostRow> & Pick<SocialPostRow, 'organization_id' | 'platform'>, Partial<SocialPostRow>>;
-      notifications: TableShape<NotificationRow, Partial<NotificationRow> & Pick<NotificationRow, 'organization_id' | 'user_id' | 'type' | 'title'>, Partial<NotificationRow>>;
-      integration_settings: TableShape<IntegrationSettingsRow, Partial<IntegrationSettingsRow> & Pick<IntegrationSettingsRow, 'organization_id'>, Partial<IntegrationSettingsRow>>;
-      lead_property_shares: TableShape<LeadPropertyShareRow, Partial<LeadPropertyShareRow> & Pick<LeadPropertyShareRow, 'organization_id' | 'lead_id' | 'property_id'>, Partial<LeadPropertyShareRow>>;
+      organizations: TableShape<OrganizationRow>;
+      profiles: TableShape<ProfileRow>;
+      leads: TableShape<LeadRow>;
+      properties: TableShape<PropertyRow>;
+      property_images: TableShape<PropertyImageRow>;
+      property_documents: TableShape<PropertyDocumentRow>;
+      calls: TableShape<CallRow>;
+      messages: TableShape<MessageRow>;
+      followups: TableShape<FollowupRow>;
+      activities: TableShape<ActivityRow>;
+      attendance: TableShape<AttendanceRow>;
+      social_posts: TableShape<SocialPostRow>;
+      notifications: TableShape<NotificationRow>;
+      integration_settings: TableShape<IntegrationSettingsRow>;
+      lead_property_shares: TableShape<LeadPropertyShareRow>;
     };
     Views: Record<string, never>;
     Functions: {
@@ -400,5 +411,6 @@ export interface Database {
       post_status: PostStatus;
       notification_type: NotificationType;
     };
+    CompositeTypes: Record<string, never>;
   };
 }

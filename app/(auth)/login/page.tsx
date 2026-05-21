@@ -1,5 +1,20 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { LoginForm } from './login-form';
+
+// useSearchParams() inside LoginForm forces this page to be dynamic.
+export const dynamic = 'force-dynamic';
+
+function LoginFormFallback() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-11 w-full" />
+      <Skeleton className="h-11 w-full" />
+      <Skeleton className="h-12 w-full" />
+    </div>
+  );
+}
 
 export default function LoginPage() {
   return (
@@ -10,7 +25,9 @@ export default function LoginPage() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card/80 p-6 shadow-md backdrop-blur">
-        <LoginForm />
+        <Suspense fallback={<LoginFormFallback />}>
+          <LoginForm />
+        </Suspense>
       </div>
 
       <p className="text-center text-sm text-text-secondary">
