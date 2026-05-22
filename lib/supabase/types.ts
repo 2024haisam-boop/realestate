@@ -33,9 +33,10 @@ export type LeadStatus =
 export type LeadTemperature = 'cold' | 'warm' | 'hot';
 
 export type LeadSource =
-  | '36acre'
-  | 'magicbricks'
-  | 'housing'
+  | 'zameen'
+  | 'graana'
+  | 'olx'
+  | 'pakistanproperty'
   | 'facebook'
   | 'instagram'
   | 'website'

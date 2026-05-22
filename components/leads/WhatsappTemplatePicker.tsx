@@ -21,7 +21,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { FOLLOWUP_TEMPLATES } from '@/lib/constants';
 import { sendWhatsappTemplateAction } from '@/app/(dashboard)/leads/actions';
-import { formatINR } from '@/lib/utils';
+import { formatPKR } from '@/lib/utils';
 
 interface WhatsappTemplatePickerProps {
   leadId: string;
@@ -42,7 +42,7 @@ function renderTemplate(body: string, args: {
     .replace(/{{preferredLocation}}/g, args.preferredLocation ?? 'your preferred area')
     .replace(
       /{{budgetMax}}/g,
-      args.budgetMax != null ? formatINR(args.budgetMax).replace(/^₹/, '') : 'your budget',
+      args.budgetMax != null ? formatPKR(args.budgetMax).replace(/^Rs\s*/, '') : 'your budget',
     );
 }
 

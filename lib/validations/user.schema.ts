@@ -20,7 +20,7 @@ export const inviteMemberSchema = z.object({
   email: z.string().email('Enter a valid email'),
   phone: z
     .string()
-    .regex(/^\+[1-9]\d{7,14}$/, 'Phone must be in E.164 format, e.g. +919811000001')
+    .regex(/^\+[1-9]\d{7,14}$/, 'Phone must be in E.164 format, e.g. +923001000003')
     .optional()
     .or(z.literal('')),
   role: z.enum(ROLES as [string, ...string[]]),

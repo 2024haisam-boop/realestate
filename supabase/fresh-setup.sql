@@ -126,9 +126,10 @@ CREATE TYPE lead_status AS ENUM (
 CREATE TYPE lead_temperature AS ENUM ('cold', 'warm', 'hot');
 
 CREATE TYPE lead_source AS ENUM (
-  '36acre',
-  'magicbricks',
-  'housing',
+  'zameen',
+  'graana',
+  'olx',
+  'pakistanproperty',
   'facebook',
   'instagram',
   'website',

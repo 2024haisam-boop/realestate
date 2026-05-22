@@ -27,7 +27,7 @@ import {
 import { fail, ok, type ActionResult } from '@/lib/types';
 import { FOLLOWUP_TEMPLATES, isManagerial } from '@/lib/constants';
 import type { LeadStatus, MessageChannel } from '@/lib/supabase/types';
-import { formatINR } from '@/lib/utils';
+import { formatPKR } from '@/lib/utils';
 
 /** Create a lead manually from inside the app. */
 export async function createLeadAction(
@@ -285,7 +285,7 @@ export async function sendWhatsappTemplateAction(
           .replace(/{{preferredLocation}}/g, lead.preferred_location ?? 'your preferred area')
           .replace(
             /{{budgetMax}}/g,
-            lead.budget_max != null ? formatINR(lead.budget_max).replace(/^₹/, '') : 'your budget',
+            lead.budget_max != null ? formatPKR(lead.budget_max).replace(/^Rs\s*/, '') : 'your budget',
           );
 
   const result = await sendMessage({

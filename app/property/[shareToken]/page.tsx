@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { PropertyGallery } from '@/components/properties/PropertyGallery';
 import { getPublicPropertyByToken } from '@/lib/db/properties';
 import { createServiceClient } from '@/lib/supabase/server';
-import { formatINR } from '@/lib/utils';
+import { formatPKR } from '@/lib/utils';
 import { PROPERTY_STATUS_LABEL, PROPERTY_TYPE_LABEL } from '@/lib/constants';
 import type { PropertyStatus } from '@/lib/supabase/types';
 import type { Metadata } from 'next';
@@ -100,7 +100,7 @@ export default async function PublicPropertyPage({
             {property.address ? ` · ${property.address}` : ''}
           </p>
           <p className="font-mono text-2xl font-semibold text-brand-primary">
-            {formatINR(property.price)}
+            {formatPKR(property.price)}
           </p>
         </div>
 

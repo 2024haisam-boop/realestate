@@ -93,7 +93,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <p className="relative text-xs text-white/55">
-          © {new Date().getFullYear()} EstateFlow · Built for Indian real estate
+          © {new Date().getFullYear()} EstateFlow · Built for Pakistani real estate
         </p>
       </aside>
 

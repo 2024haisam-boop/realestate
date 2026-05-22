@@ -18,7 +18,7 @@ import {
   LEAD_SOURCE_LABEL,
   PROPERTY_TYPE_LABEL,
 } from '@/lib/constants';
-import { formatINR, formatINRRange } from '@/lib/utils';
+import { formatPKR, formatPKRRange } from '@/lib/utils';
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -76,7 +76,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             value={lead.preferred_location ?? '—'}
             icon={lead.preferred_location ? <MapPin className="h-3.5 w-3.5 text-text-muted" /> : null}
           />
-          <InfoRow label="Budget" value={formatINRRange(lead.budget_min, lead.budget_max)} mono />
+          <InfoRow label="Budget" value={formatPKRRange(lead.budget_min, lead.budget_max)} mono />
           <InfoRow
             label="External ID"
             value={lead.external_id ?? '—'}
@@ -130,7 +130,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                     </p>
                     <div className="mt-auto flex items-center justify-between">
                       <span className="font-mono text-sm font-semibold text-brand-primary">
-                        {formatINR(p.price)}
+                        {formatPKR(p.price)}
                       </span>
                       <Badge variant="muted" className="text-[10px] uppercase">
                         {PROPERTY_TYPE_LABEL[p.property_type]}

@@ -3,7 +3,7 @@ import { LEAD_SOURCES, LEAD_STATUSES, LEAD_TEMPERATURES, PROPERTY_TYPES } from '
 
 const phoneSchema = z
   .string()
-  .regex(/^\+[1-9]\d{7,14}$/, 'Phone must be in E.164 format, e.g. +919811000001');
+  .regex(/^\+[1-9]\d{7,14}$/, 'Phone must be in E.164 format, e.g. +923001000003');
 
 export const leadCreateSchema = z.object({
   fullName: z.string().min(2, 'Full name is too short').max(120),

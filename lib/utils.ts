@@ -6,21 +6,24 @@ export function cn(...inputs: ClassValue[]): string {
 }
 
 /**
- * Format an INR amount (stored as bigint rupees) for display.
- * 10000000 -> "₹1.00 Cr"   100000 -> "₹1.00 L"   1000 -> "₹1.0K"
+ * Format a Pakistani Rupee amount (stored as bigint rupees) for display.
+ * Pakistan uses the Lakh / Crore numbering system, identical in scale to
+ * India's, but with the "Rs" prefix instead of "₹".
+ *
+ * 10000000 -> "Rs 1.00 Cr"   100000 -> "Rs 1.00 Lakh"   1000 -> "Rs 1.0K"
  */
-export function formatINR(amount: number): string {
-  if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)} Cr`;
-  if (amount >= 100000) return `₹${(amount / 100000).toFixed(2)} L`;
-  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}K`;
-  return `₹${amount.toLocaleString('en-IN')}`;
+export function formatPKR(amount: number): string {
+  if (amount >= 10000000) return `Rs ${(amount / 10000000).toFixed(2)} Cr`;
+  if (amount >= 100000) return `Rs ${(amount / 100000).toFixed(2)} Lakh`;
+  if (amount >= 1000) return `Rs ${(amount / 1000).toFixed(1)}K`;
+  return `Rs ${amount.toLocaleString('en-PK')}`;
 }
 
-export function formatINRRange(min: number | null, max: number | null): string {
+export function formatPKRRange(min: number | null, max: number | null): string {
   if (min == null && max == null) return '—';
-  if (min != null && max != null) return `${formatINR(min)} – ${formatINR(max)}`;
-  if (min != null) return `${formatINR(min)}+`;
-  return `up to ${formatINR(max!)}`;
+  if (min != null && max != null) return `${formatPKR(min)} – ${formatPKR(max)}`;
+  if (min != null) return `${formatPKR(min)}+`;
+  return `up to ${formatPKR(max!)}`;
 }
 
 export function initialsFromName(name: string): string {
@@ -29,7 +32,7 @@ export function initialsFromName(name: string): string {
 }
 
 /**
- * Validate E.164 phone format. Permissive enough for Indian +91 numbers
+ * Validate E.164 phone format. Permissive enough for Pakistani +92 numbers
  * while rejecting obvious garbage.
  */
 export function isValidE164(phone: string): boolean {

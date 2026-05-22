@@ -119,7 +119,7 @@ psql "$SUPABASE_DB_URL" -f supabase/seed.sql
 ```
 
 After seeding, sign in as any seeded user with password `Password123!` (e.g.
-`vikram@prestigerealty.com` is the admin).
+`ahmed@sapphireestates.pk` is the admin).
 
 **Verify the database is ready** by hitting the diagnostic:
 
@@ -191,7 +191,7 @@ Flow when real:
 The lead intake webhook is `POST /api/webhooks/leads` with HMAC-SHA256 auth.
 
 ```bash
-BODY='{"fullName":"Test Lead","phone":"+919811000099","email":"t@x.com","source":"36acre","propertyType":"apartment","budgetMin":7500000,"budgetMax":12000000,"preferredLocation":"Gurgaon","externalId":"36ACRE-0001","organizationSlug":"prestige-realty"}'
+BODY='{"fullName":"Test Lead","phone":"+923001100099","email":"t@x.com","source":"Zameen","propertyType":"apartment","budgetMin":7500000,"budgetMax":12000000,"preferredLocation":"Karachi","externalId":"ZAM-0001","organizationSlug":"sapphire-estates"}'
 
 SIG=$(echo -n "$BODY" | openssl dgst -sha256 -hmac "$LEAD_WEBHOOK_SECRET" | sed 's/^.* //')
 
@@ -249,10 +249,10 @@ and [lib/services/messageService.ts](lib/services/messageService.ts).
 6. **Configure Twilio**:
    - Add your prod URL `/api/twilio/status` as the status callback.
    - Confirm the WhatsApp sender is approved.
-7. **Configure your lead-source webhook integrations** (36acre, MagicBricks,
+7. **Configure your lead-source webhook integrations** (Zameen, Graana,
    etc.) to POST to `https://<your-app>/api/webhooks/leads` with the
    `X-Webhook-Signature: sha256=…` header.
-8. **Optional but recommended**: set `TZ=Asia/Kolkata` in Vercel env vars so
+8. **Optional but recommended**: set `TZ=Asia/Karachi` in Vercel env vars so
    the attendance `late` cutoff (9:30 AM) is computed in your business
    timezone.
 
@@ -312,7 +312,7 @@ estateflow-crm/
 │   ├── validations/             ← Zod schemas
 │   ├── stores/                  ← Zustand (page title)
 │   ├── constants.ts             ← Roles, statuses, templates, etc.
-│   └── utils.ts                 ← cn(), formatINR(), shortRelative()
+│   └── utils.ts                 ← cn(), formatPKR(), shortRelative()
 ├── hooks/                       ← useNotifications, useRealtime
 ├── supabase/
 │   ├── migrations/              ← 14 SQL migrations, run in order

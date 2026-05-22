@@ -82,7 +82,7 @@ export function LeadForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" placeholder="+919811000000" {...register('phone')} />
+          <Input id="phone" placeholder="+923001000003" {...register('phone')} />
           {errors.phone ? <p className="text-xs text-brand-danger">{errors.phone.message}</p> : null}
         </div>
       </div>

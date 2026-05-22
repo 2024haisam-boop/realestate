@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Bed, Bath, Maximize, MapPin, ImageIcon, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn, formatINR } from '@/lib/utils';
+import { cn, formatPKR } from '@/lib/utils';
 import { PROPERTY_STATUS_LABEL, PROPERTY_TYPE_LABEL } from '@/lib/constants';
 import type { PropertyStatus } from '@/lib/supabase/types';
 import type { PropertyWithImages } from '@/lib/db/properties';
@@ -69,7 +69,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <div className="flex items-start justify-between gap-3">
             <h3 className="line-clamp-2 text-sm font-semibold text-text-primary">{property.title}</h3>
             <span className="shrink-0 font-mono text-sm font-semibold text-brand-primary">
-              {formatINR(property.price)}
+              {formatPKR(property.price)}
             </span>
           </div>
 

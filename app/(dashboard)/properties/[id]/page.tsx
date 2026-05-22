@@ -29,7 +29,7 @@ import {
   PROPERTY_TYPE_LABEL,
   isManagerial,
 } from '@/lib/constants';
-import { formatINR } from '@/lib/utils';
+import { formatPKR } from '@/lib/utils';
 import type { PropertyStatus } from '@/lib/supabase/types';
 
 const STATUS_TONE: Record<PropertyStatus, 'success' | 'warning' | 'muted' | 'info'> = {
@@ -79,7 +79,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
           </div>
           <div className="text-right shrink-0">
             <p className="font-mono text-lg font-semibold text-brand-primary">
-              {formatINR(property.price)}
+              {formatPKR(property.price)}
             </p>
             {property.size_sqft ? (
               <p className="font-mono text-[11px] text-text-muted">

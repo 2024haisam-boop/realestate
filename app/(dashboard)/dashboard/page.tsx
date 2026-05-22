@@ -13,7 +13,7 @@ import { requireSessionUser } from '@/lib/db/users';
 import { getDashboardMetrics, getHotLeads, getFollowupsDueToday } from '@/lib/db/dashboard';
 import { listRecentActivities } from '@/lib/db/activities';
 import { LEAD_STATUS_LABEL, LEAD_STATUS_TONE, LEAD_SOURCE_LABEL } from '@/lib/constants';
-import { formatINRRange } from '@/lib/utils';
+import { formatPKRRange } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export default async function DashboardPage() {
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
                         </p>
                         <p className="truncate text-xs text-text-secondary">
                           {LEAD_SOURCE_LABEL[lead.source]} ·{' '}
-                          {formatINRRange(lead.budget_min, lead.budget_max)}
+                          {formatPKRRange(lead.budget_min, lead.budget_max)}
                         </p>
                       </div>
                       <Badge variant={LEAD_STATUS_TONE[lead.status]}>

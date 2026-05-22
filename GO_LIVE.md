@@ -4,7 +4,7 @@ Two paths. Pick one.
 
 ---
 
-## Path A — Demo to your property friends (today, ~1 hour, ₹0)
+## Path A — Demo to your property friends (today, ~1 hour, Rs 0)
 
 Goal: a public URL they can open on their phones, sign up, and click around.
 Twilio is **not needed** — dry-run mode shows the entire flow with simulated
@@ -55,7 +55,7 @@ Supabase blocks auth flows from unknown origins by default.
 Send the URL to your friends. They can:
 
 - **Register a fresh workspace** → they become admin of their own org.
-- **Or, sign in as your seed admin** (`vikram@prestigerealty.com` /
+- **Or, sign in as your seed admin** (`ahmed@sapphireestates.pk` /
   `Password123!`) — if you ran [seed.sql](supabase/seed.sql), this gives them
   the 20-lead / 10-property demo dataset to click through.
 
@@ -68,33 +68,33 @@ Show them:
 - Reports → all 6 charts
 - Add a team member from `/team`
 
-**That's the demo.** Cost: ₹0. Time to first show: ~1 hour.
+**That's the demo.** Cost: Rs 0. Time to first show: ~1 hour.
 
 ---
 
-## Path B — Real go-live (2–4 weeks, ~₹2,000–10,000/mo)
+## Path B — Real go-live (2–4 weeks, ~Rs 2,000–10,000/mo)
 
 When you want to actually place real calls, send real WhatsApps, and ingest
 real leads from your sources.
 
 ### What you need
 
-| Service | Purpose | Indian KYC needed? | Approx cost (small team) |
+| Service | Purpose | Pakistani KYC needed? | Approx cost (small team) |
 |---|---|---|---|
-| **Twilio account** | Voice + SMS + WhatsApp | Yes for Indian numbers | $20–50/mo + per-minute |
-| **Twilio phone number** | Outbound dialer + SMS | Yes, +KYC + DLT registration | $1–2/mo each |
+| **Twilio account** | Voice + SMS + WhatsApp | Yes for Pakistani numbers | $20–50/mo + per-minute |
+| **Twilio phone number** | Outbound dialer + SMS | Yes, +KYC + PTA SMS sender registration | $1–2/mo each |
 | **Twilio WhatsApp Business sender** | WhatsApp templates | Yes, FB Business verified | $0.005/conversation |
-| **Lead source integrations** | 36acre, MagicBricks, Housing | Source-side config | — |
-| **Custom domain** (optional) | `crm.yourcompany.com` | DNS edits | ₹500–2000/yr |
+| **Lead source integrations** | Zameen, Graana, OLX Pakistan | Source-side config | — |
+| **Custom domain** (optional) | `crm.yourcompany.com` | DNS edits | Rs 500–2000/yr |
 | **OpenAI** (optional) | AI captions | No | ~$5/mo for GPT-4o-mini |
 
 ### Phase 1 — Twilio (1–3 days)
 
 1. **Sign up at <https://www.twilio.com/try-twilio>** with your business email.
 2. Add a credit card. Trial mode includes $15 credit.
-3. **Buy a number** — Phone Numbers → Buy a number. For India:
+3. **Buy a number** — Phone Numbers → Buy a number. For Pakistan:
    - Easiest start: a US number (no KYC) for outbound demo calls.
-   - Real production: an Indian number — requires KYC documents (GST + address
+   - Real production: a Pakistani number — requires KYC documents (GST + address
      proof + photo ID). Takes 1–7 business days.
 4. **Note your credentials** — Console → Account Info → Account SID + Auth Token.
 
@@ -146,14 +146,14 @@ Two routes:
 You have the webhook endpoint `https://<your-app>/api/webhooks/leads`. Your
 lead sources need to be told to POST there. Steps differ per source:
 
-- **36acre / Housing.com / MagicBricks**: most enterprise dashboards have a
+- **Zameen.com / Graana / OLX Pakistan**: most enterprise dashboards have a
   "lead delivery webhook" config. Paste your URL and webhook secret.
 - **Facebook lead ads**: use Zapier or Make.com to POST from Facebook Leads
   → your webhook URL.
 - **Custom website forms**: have your developer POST directly:
 
 ```bash
-BODY='{"fullName":"Test Lead","phone":"+919811000099","source":"website","organizationSlug":"your-slug"}'
+BODY='{"fullName":"Test Lead","phone":"+923001100099","source":"website","organizationSlug":"your-slug"}'
 SIG=$(echo -n "$BODY" | openssl dgst -sha256 -hmac "$LEAD_WEBHOOK_SECRET" | sed 's/^.* //')
 curl -X POST https://your-app/api/webhooks/leads \
   -H "Content-Type: application/json" \
@@ -166,19 +166,19 @@ The `X-Webhook-Signature` header is computed as
 providers support HMAC signing natively — just give them the URL and the
 secret from `/settings`.
 
-### Phase 6 — DLT registration (Indian regulator, required for SMS)
+### Phase 6 — PTA SMS sender registration (Pakistani regulator, required for SMS)
 
-If you're sending SMS to Indian numbers (any digit-only +91 number), TRAI
-requires you to register your sender and message templates on DLT (Distributed
-Ledger Technology platform).
+If you're sending SMS to Pakistani numbers (any +92 number), PTA
+requires you to register your sender and message templates with a licensed
+SMS aggregator before they'll deliver.
 
-1. Pick a DLT operator (Vodafone Idea, Jio, BSNL, Airtel — any one).
-2. Register your business (PAN, GST, etc.).
+1. Pick a Pakistani SMS aggregator (Jazz, Telenor, Zong, Ufone — any one).
+2. Register your business (SECP NTN, GST sales tax registration, etc.).
 3. Register your sender ID (6 alphanumeric chars).
 4. Register your SMS templates with their exact wording.
-5. Give the DLT entity ID + template IDs to Twilio.
+5. Give the PTA entity ID + template IDs to Twilio.
 
-Timeline: ~1 week. **WhatsApp doesn't need DLT** — only SMS does. If you're
+Timeline: ~1 week. **WhatsApp doesn't need PTA** — only SMS does. If you're
 WhatsApp-first, you can skip this.
 
 ### Phase 7 — Final checks before going live (30 min)
@@ -212,14 +212,14 @@ WhatsApp-first, you can skip this.
 |---|---|---|---|
 | Vercel | Up to 100 GB-hours/mo, plenty | $20/mo Pro | $40/mo Pro |
 | Supabase | 500 MB DB, 1 GB storage | $25/mo Pro | $25–60/mo |
-| Twilio voice (India inbound) | — | ₹0.40/min | ₹0.40/min |
-| Twilio voice (India outbound) | — | ₹0.55–0.75/min | same |
-| Twilio WhatsApp | — | ₹0.50–0.80/conv | same |
-| Twilio SMS | — | ₹0.20/sms | same |
+| Twilio voice (Pakistan inbound) | — | Rs 0.40/min | Rs 0.40/min |
+| Twilio voice (Pakistan outbound) | — | Rs 0.55–0.75/min | same |
+| Twilio WhatsApp | — | Rs 0.50–0.80/conv | same |
+| Twilio SMS | — | Rs 0.20/sms | same |
 | OpenAI (gpt-4o-mini) | — | ~$3–10/mo for 20 captions/day | $30/mo |
 
 **For a 5-agent team doing 50 calls/day + 100 WhatsApps/day:**
-roughly ₹3,500–7,000/month total infrastructure cost.
+roughly Rs 3,500–7,000/month total infrastructure cost.
 
 ---
 
@@ -250,7 +250,7 @@ people don't notice or care.
 
 Order of operations:
 
-1. Buy Twilio number → wait for KYC if Indian → get SID + token.
+1. Buy Twilio number → wait for KYC if Pakistani → get SID + token.
 2. Open `/settings` in your deployed app.
 3. Paste Twilio creds → click **Test** → green ✓ check.
 4. Leave Dry-run **ON** and click Save.
@@ -275,5 +275,5 @@ If anything in this guide is unclear or you hit a wall:
 - The `/api/diagnose` endpoint in your own app tells you what's broken on the
   database side. The Test Twilio button in `/settings` does the same for Twilio.
 
-You're 90% of the way there. The remaining 10% is mostly paperwork (KYC, DLT,
+You're 90% of the way there. The remaining 10% is mostly paperwork (KYC, PTA SMS registration,
 WhatsApp template approval) — not code.

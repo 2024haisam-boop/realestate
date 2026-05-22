@@ -86,9 +86,10 @@ export const LEAD_TEMPERATURE_LABEL: Record<LeadTemperature, string> = {
 };
 
 export const LEAD_SOURCES: LeadSource[] = [
-  '36acre',
-  'magicbricks',
-  'housing',
+  'zameen',
+  'graana',
+  'olx',
+  'pakistanproperty',
   'facebook',
   'instagram',
   'website',
@@ -98,9 +99,10 @@ export const LEAD_SOURCES: LeadSource[] = [
 ];
 
 export const LEAD_SOURCE_LABEL: Record<LeadSource, string> = {
-  '36acre': '36acre',
-  magicbricks: 'MagicBricks',
-  housing: 'Housing.com',
+  zameen: 'Zameen.com',
+  graana: 'Graana',
+  olx: 'OLX Pakistan',
+  pakistanproperty: 'Pakistan Property',
   facebook: 'Facebook',
   instagram: 'Instagram',
   website: 'Website',

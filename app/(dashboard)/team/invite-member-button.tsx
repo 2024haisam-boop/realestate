@@ -101,7 +101,7 @@ export function InviteMemberButton() {
 
           <div className="space-y-1.5">
             <Label htmlFor="invite-phone">Phone (optional)</Label>
-            <Input id="invite-phone" placeholder="+919811000003" {...register('phone')} />
+            <Input id="invite-phone" placeholder="+923001000003" {...register('phone')} />
             {errors.phone ? <p className="text-xs text-brand-danger">{errors.phone.message}</p> : null}
           </div>
 

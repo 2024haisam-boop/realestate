@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { sendMessage } from './messageService';
-import { formatINR } from '@/lib/utils';
+import { formatPKR } from '@/lib/utils';
 import type { MessageChannel } from '@/lib/supabase/types';
 
 export interface ShareWithLeadInput {
@@ -35,7 +35,7 @@ function buildShareMessage(args: {
 }): string {
   const parts = [
     `Hi ${args.leadName}, sharing details of ${args.propertyTitle} in ${args.location}.`,
-    `Price: ${formatINR(args.price)}.`,
+    `Price: ${formatPKR(args.price)}.`,
   ];
   if (args.bedrooms) parts.push(`Bedrooms: ${args.bedrooms}.`);
   if (args.sizeSqft) parts.push(`Size: ${args.sizeSqft} sqft.`);

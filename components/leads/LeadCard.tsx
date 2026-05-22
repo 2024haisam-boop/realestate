@@ -3,7 +3,7 @@ import { Phone, Flame, MapPin, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { LeadStatusBadge } from './LeadStatusBadge';
-import { cn, formatINRRange, initialsFromName, shortRelative } from '@/lib/utils';
+import { cn, formatPKRRange, initialsFromName, shortRelative } from '@/lib/utils';
 import { LEAD_SOURCE_LABEL } from '@/lib/constants';
 import type { LeadWithAgent } from '@/lib/db/leads';
 
@@ -54,7 +54,7 @@ export function LeadCard({ lead }: LeadCardProps) {
               {lead.preferred_location}
             </span>
           ) : null}
-          <span className="font-mono text-text-primary">{formatINRRange(lead.budget_min, lead.budget_max)}</span>
+          <span className="font-mono text-text-primary">{formatPKRRange(lead.budget_min, lead.budget_max)}</span>
         </div>
 
         <div className="relative flex items-center justify-between gap-2 text-[11px] text-text-muted">
