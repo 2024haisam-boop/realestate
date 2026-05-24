@@ -321,6 +321,9 @@ export type NotificationRow = {
   created_at: string;
 }
 
+export type AiProvider = 'vapi' | 'retell' | 'bland' | 'none';
+export type AiLanguage = 'english' | 'urdu' | 'roman_urdu';
+
 export type IntegrationSettingsRow = {
   id: string;
   organization_id: string;
@@ -339,6 +342,42 @@ export type IntegrationSettingsRow = {
   lead_assignment_mode: LeadAssignmentMode;
   zapier_webhook_url: string | null;
   dry_run_mode: boolean;
+  // AI calling agent (Vapi-first, but provider-agnostic shape).
+  ai_provider: AiProvider;
+  ai_api_key: string | null;
+  ai_assistant_id: string | null;
+  ai_assistant_id_urdu: string | null;
+  ai_calling_enabled: boolean;
+  ai_auto_call_new_leads: boolean;
+  ai_default_language: AiLanguage;
+  ai_calling_hours_start: number;
+  ai_calling_hours_end: number;
+  ai_max_calls_per_day: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AiCallStatus = 'queued' | 'in_progress' | 'completed' | 'failed' | 'transferred';
+
+export type AiCallRow = {
+  id: string;
+  organization_id: string;
+  lead_id: string;
+  provider: string;
+  provider_call_id: string | null;
+  language: string;
+  status: AiCallStatus;
+  duration_seconds: number | null;
+  cost_usd: number | null;
+  recording_url: string | null;
+  transcript: string | null;
+  summary: string | null;
+  sentiment: string | null;
+  intent: string | null;
+  ended_reason: string | null;
+  transferred_to_agent_id: string | null;
+  started_at: string | null;
+  ended_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -386,6 +425,7 @@ export interface Database {
       social_posts: TableShape<SocialPostRow>;
       notifications: TableShape<NotificationRow>;
       integration_settings: TableShape<IntegrationSettingsRow>;
+      ai_calls: TableShape<AiCallRow>;
       lead_property_shares: TableShape<LeadPropertyShareRow>;
     };
     Views: Record<string, never>;

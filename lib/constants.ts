@@ -192,7 +192,7 @@ export const FOLLOWUP_TEMPLATES: FollowupTemplate[] = [
     id: 'ft3',
     name: 'New Options Available',
     channel: 'whatsapp',
-    body: 'Hi {{leadName}}, we have a few new options matching your budget of ₹{{budgetMax}}. Should I share them with you?',
+    body: 'Hi {{leadName}}, we have a few new options matching your budget of Rs {{budgetMax}}. Should I share them with you?',
   },
   {
     id: 'ft4',

@@ -83,7 +83,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
             </p>
             {property.size_sqft ? (
               <p className="font-mono text-[11px] text-text-muted">
-                ₹{Math.round(property.price / property.size_sqft).toLocaleString('en-IN')}/sqft
+                Rs {Math.round(property.price / property.size_sqft).toLocaleString('en-PK')}/sqft
               </p>
             ) : null}
           </div>
@@ -150,7 +150,7 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
           <InfoRow
             icon={<CalendarClock className="h-3.5 w-3.5" />}
             label="Listed"
-            value={new Date(property.created_at).toLocaleDateString('en-IN')}
+            value={new Date(property.created_at).toLocaleDateString('en-PK')}
           />
         </CardContent>
       </Card>

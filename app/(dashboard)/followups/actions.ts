@@ -49,7 +49,7 @@ export async function createFollowupAction(
     userId: me.id,
     type: 'followup_scheduled',
     title: `Follow-up scheduled (${v.type.replace('_', ' ')})`,
-    description: `Scheduled for ${new Date(v.scheduledAt).toLocaleString('en-IN')}`,
+    description: `Scheduled for ${new Date(v.scheduledAt).toLocaleString('en-PK')}`,
     metadata: { followupId: followup.id, type: v.type, templateUsed: v.templateUsed || null },
   });
 

@@ -11,6 +11,7 @@ import {
   integrationSettingsSchema,
   type IntegrationSettingsInput,
 } from '@/lib/validations/integration.schema';
+import { placeAiCall, testVapiApiKey } from '@/lib/services/aiCallingService';
 import { fail, ok, type ActionResult } from '@/lib/types';
 
 export async function updateIntegrationSettingsAction(
@@ -36,11 +37,81 @@ export async function updateIntegrationSettingsAction(
     zapier_webhook_url: v.zapier_webhook_url || null,
     lead_assignment_mode: v.lead_assignment_mode,
     dry_run_mode: v.dry_run_mode,
+    // AI calling
+    ai_provider: v.ai_provider,
+    ai_api_key: v.ai_api_key || null,
+    ai_assistant_id: v.ai_assistant_id || null,
+    ai_assistant_id_urdu: v.ai_assistant_id_urdu || null,
+    ai_calling_enabled: v.ai_calling_enabled,
+    ai_auto_call_new_leads: v.ai_auto_call_new_leads,
+    ai_default_language: v.ai_default_language,
+    ai_calling_hours_start: v.ai_calling_hours_start,
+    ai_calling_hours_end: v.ai_calling_hours_end,
+    ai_max_calls_per_day: v.ai_max_calls_per_day,
   });
   if (!result) return fail('Could not save settings');
 
   revalidatePath('/settings');
   return ok(true);
+}
+
+/**
+ * Test a Vapi API key by listing the assistants on the account.
+ */
+export async function testVapiCredentialsAction(input: {
+  apiKey: string;
+}): Promise<ActionResult<{ assistantCount: number }>> {
+  const me = await requireSessionUser();
+  if (me.role !== 'admin') return fail('Only admins can test credentials');
+  if (!input.apiKey) return fail('Paste a Vapi API key first');
+  const result = await testVapiApiKey(input.apiKey);
+  if (!result.ok) return fail(result.error);
+  return ok({ assistantCount: result.assistantCount });
+}
+
+/**
+ * Place a one-off AI test call against an arbitrary phone number — useful
+ * to dry-run the entire pipeline from the settings UI without needing a
+ * lead to walk in. Creates a throwaway "test" lead so the ai_calls row
+ * has a valid lead_id FK.
+ */
+export async function placeAiTestCallAction(input: {
+  phone: string;
+  language?: 'english' | 'urdu' | 'roman_urdu';
+}): Promise<ActionResult<{ aiCallId?: string; isDryRun?: boolean }>> {
+  const me = await requireSessionUser();
+  if (me.role !== 'admin') return fail('Only admins can place test calls');
+  if (!/^\+[1-9]\d{7,14}$/.test(input.phone)) {
+    return fail('Phone must be in E.164 format, e.g. +923001234567');
+  }
+
+  const { createServiceClient } = await import('@/lib/supabase/server');
+  const admin = createServiceClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: lead, error } = await (admin as any)
+    .from('leads')
+    .insert({
+      organization_id: me.organizationId,
+      full_name: 'Test call',
+      phone: input.phone,
+      source: 'manual',
+      status: 'new',
+      notes: 'Created automatically by the /settings AI test-call button.',
+    })
+    .select('id')
+    .single();
+  if (error || !lead) return fail(`Could not create test lead: ${error?.message ?? 'unknown'}`);
+
+  const result = await placeAiCall({
+    organizationId: me.organizationId,
+    leadId: lead.id,
+    leadName: 'Test call',
+    leadPhone: input.phone,
+    language: input.language,
+  });
+  if (!result.success) return fail(result.error ?? result.reason ?? 'Could not place test call');
+
+  return ok({ aiCallId: result.aiCallId, isDryRun: result.isDryRun });
 }
 
 export async function rotateWebhookSecretAction(): Promise<ActionResult<{ secret: string }>> {

@@ -6,6 +6,8 @@ import { requireSessionUser, getProfileById } from '@/lib/db/users';
 import { createLead, deleteLead, updateLead } from '@/lib/db/leads';
 import { createActivity } from '@/lib/db/activities';
 import { bridgeCall } from '@/lib/services/callService';
+import { placeAiCall } from '@/lib/services/aiCallingService';
+import { getIntegrationSettings } from '@/lib/db/integration-settings';
 import { sendMessage } from '@/lib/services/messageService';
 import { shareWithLead } from '@/lib/services/propertyShareService';
 import {
@@ -89,6 +91,21 @@ export async function createLeadAction(
           metadata: { leadId: lead.id } as never,
         });
       }
+    }
+  }
+
+  // AI auto-call: if enabled, kick off an AI call now. Best-effort — failures
+  // are logged but don't block lead creation.
+  const settings = await getIntegrationSettings(me.organizationId);
+  if (settings?.ai_calling_enabled && settings.ai_auto_call_new_leads) {
+    const aiResult = await placeAiCall({
+      organizationId: me.organizationId,
+      leadId: lead.id,
+      leadName: v.fullName,
+      leadPhone: v.phone,
+    });
+    if (!aiResult.success) {
+      console.warn('[createLeadAction] AI call skipped:', aiResult.error ?? aiResult.reason);
     }
   }
 

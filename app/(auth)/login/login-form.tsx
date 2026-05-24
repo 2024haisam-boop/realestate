@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,6 @@ import { loginSchema, type LoginInput } from '@/lib/validations/user.schema';
 import { loginAction } from '../actions';
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? '/dashboard';
   const [isPending, startTransition] = useTransition();
@@ -30,15 +29,13 @@ export function LoginForm() {
   const onSubmit = (values: LoginInput) => {
     setServerError(null);
     startTransition(async () => {
-      const result = await loginAction(values);
-      if (!result.success) {
+      // The server action redirects on success — we only reach the result
+      // branch on failure.
+      const result = await loginAction(values, redirectTo);
+      if (result && !result.success) {
         setServerError(result.error);
         toast.error(result.error);
-        return;
       }
-      toast.success('Signed in');
-      router.push(redirectTo);
-      router.refresh();
     });
   };
 

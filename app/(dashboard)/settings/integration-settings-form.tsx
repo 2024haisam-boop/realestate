@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  Bot,
   CheckCircle2,
   Eye,
   EyeOff,
+  PhoneOutgoing,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
@@ -28,8 +30,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  placeAiTestCallAction,
   rotateWebhookSecretAction,
   testTwilioCredentialsAction,
+  testVapiCredentialsAction,
   updateIntegrationSettingsAction,
 } from './actions';
 import {
@@ -81,8 +85,11 @@ export function IntegrationSettingsForm({ settings, webhookUrl }: IntegrationSet
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isTesting, startTest] = useTransition();
+  const [isTestingAi, startTestAi] = useTransition();
+  const [isTestCalling, startTestCall] = useTransition();
   const [isRotating, startRotate] = useTransition();
   const [secret, setSecret] = useState(settings.webhook_secret);
+  const [testCallPhone, setTestCallPhone] = useState('');
 
   const {
     register,
@@ -104,11 +111,24 @@ export function IntegrationSettingsForm({ settings, webhookUrl }: IntegrationSet
       zapier_webhook_url: settings.zapier_webhook_url ?? '',
       lead_assignment_mode: settings.lead_assignment_mode,
       dry_run_mode: settings.dry_run_mode,
+      ai_provider: settings.ai_provider ?? 'vapi',
+      ai_api_key: settings.ai_api_key ?? '',
+      ai_assistant_id: settings.ai_assistant_id ?? '',
+      ai_assistant_id_urdu: settings.ai_assistant_id_urdu ?? '',
+      ai_calling_enabled: settings.ai_calling_enabled ?? false,
+      ai_auto_call_new_leads: settings.ai_auto_call_new_leads ?? true,
+      ai_default_language: settings.ai_default_language ?? 'english',
+      ai_calling_hours_start: settings.ai_calling_hours_start ?? 9,
+      ai_calling_hours_end: settings.ai_calling_hours_end ?? 21,
+      ai_max_calls_per_day: settings.ai_max_calls_per_day ?? 50,
     },
   });
 
   const dryRun = watch('dry_run_mode');
   const assignmentMode = watch('lead_assignment_mode');
+  const aiEnabled = watch('ai_calling_enabled');
+  const aiLanguage = watch('ai_default_language');
+  const aiProvider = watch('ai_provider');
 
   const onSubmit = (values: IntegrationSettingsInput) => {
     startTransition(async () => {
@@ -137,6 +157,46 @@ export function IntegrationSettingsForm({ settings, webhookUrl }: IntegrationSet
       }
       toast.success('Twilio credentials look good ✓', {
         description: `${r.data.accountFriendlyName} · ${r.data.status}`,
+      });
+    });
+  };
+
+  const onTestVapi = () => {
+    const apiKey = getValues('ai_api_key') ?? '';
+    if (!apiKey) {
+      toast.error('Paste a Vapi API key first');
+      return;
+    }
+    startTestAi(async () => {
+      const r = await testVapiCredentialsAction({ apiKey });
+      if (!r.success) {
+        toast.error('Vapi rejected the API key', { description: r.error });
+        return;
+      }
+      toast.success('Vapi API key works ✓', {
+        description: `${r.data.assistantCount} assistant(s) available on this account`,
+      });
+    });
+  };
+
+  const onTestCall = () => {
+    if (!/^\+[1-9]\d{7,14}$/.test(testCallPhone)) {
+      toast.error('Enter a phone in E.164 format, e.g. +923001234567');
+      return;
+    }
+    startTestCall(async () => {
+      const r = await placeAiTestCallAction({
+        phone: testCallPhone,
+        language: aiLanguage,
+      });
+      if (!r.success) {
+        toast.error('Could not place test call', { description: r.error });
+        return;
+      }
+      toast.success(r.data.isDryRun ? 'Test call queued (dry run)' : 'Test call placed ✓', {
+        description: r.data.isDryRun
+          ? 'Turn off Dry-run mode + fill in Vapi creds to make a real call.'
+          : 'Watch your phone — it should ring within ~10 seconds.',
       });
     });
   };
@@ -281,6 +341,214 @@ export function IntegrationSettingsForm({ settings, webhookUrl }: IntegrationSet
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Calling Agent */}
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle className="text-base inline-flex items-center gap-2">
+              <Bot className="h-4 w-4 text-brand-accent" />
+              AI Calling Agent
+            </CardTitle>
+            <CardDescription>
+              Auto-calls every new lead within seconds, qualifies them in English / Urdu, and
+              transfers to any Available agent on request. Powered by Vapi.ai — sub-second latency,
+              roughly Rs 25-35 per minute.
+            </CardDescription>
+          </div>
+          <Badge variant={aiEnabled ? 'success' : 'muted'}>{aiEnabled ? 'ON' : 'OFF'}</Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <label className="flex items-center justify-between rounded-lg border border-border bg-surface-2 p-3">
+            <div>
+              <p className="text-sm font-medium text-text-primary">AI calling enabled</p>
+              <p className="text-xs text-text-secondary">
+                Master switch. When off, leads route to humans only — same as before.
+              </p>
+            </div>
+            <Switch
+              checked={aiEnabled}
+              onCheckedChange={(v) => setValue('ai_calling_enabled', v, { shouldDirty: true })}
+            />
+          </label>
+
+          {aiEnabled ? (
+            <>
+              <div className="space-y-1.5">
+                <Label>Provider</Label>
+                <Select
+                  value={aiProvider}
+                  onValueChange={(v) =>
+                    setValue('ai_provider', v as IntegrationSettingsInput['ai_provider'], {
+                      shouldDirty: true,
+                    })
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="vapi">Vapi.ai (recommended)</SelectItem>
+                    <SelectItem value="retell">Retell.ai (coming soon)</SelectItem>
+                    <SelectItem value="bland">Bland.ai (coming soon)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="ai_api_key" className="flex items-center justify-between">
+                  <span>Vapi API key</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onTestVapi}
+                    loading={isTestingAi}
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Test
+                  </Button>
+                </Label>
+                <SecretInput
+                  id="ai_api_key"
+                  value={watch('ai_api_key') ?? ''}
+                  onChange={(v) => setValue('ai_api_key', v, { shouldDirty: true })}
+                  placeholder="Bearer key from dashboard.vapi.ai → Account"
+                />
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ai_assistant_id">Assistant ID (English)</Label>
+                  <Input
+                    id="ai_assistant_id"
+                    placeholder="asst_xxxxxxxxxxxxxx"
+                    {...register('ai_assistant_id')}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-xs text-text-muted">
+                    Create an assistant in Vapi → copy the ID. Prompt it as a Pakistani real-estate
+                    qualifier with a <code>transfer_to_agent</code> tool.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ai_assistant_id_urdu">Assistant ID (Urdu / Roman Urdu)</Label>
+                  <Input
+                    id="ai_assistant_id_urdu"
+                    placeholder="asst_xxxxxxxxxxxxxx (optional)"
+                    {...register('ai_assistant_id_urdu')}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-xs text-text-muted">
+                    Falls back to the English assistant if blank.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Default language</Label>
+                <Select
+                  value={aiLanguage}
+                  onValueChange={(v) =>
+                    setValue(
+                      'ai_default_language',
+                      v as IntegrationSettingsInput['ai_default_language'],
+                      { shouldDirty: true },
+                    )
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="urdu">Urdu</SelectItem>
+                    <SelectItem value="roman_urdu">Roman Urdu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <label className="flex items-center justify-between rounded-lg border border-border bg-surface-2 p-3">
+                <div>
+                  <p className="text-sm font-medium text-text-primary">Auto-call new leads</p>
+                  <p className="text-xs text-text-secondary">
+                    When a new lead enters via webhook or manual entry, dial them within ~30 seconds.
+                  </p>
+                </div>
+                <Switch
+                  checked={watch('ai_auto_call_new_leads')}
+                  onCheckedChange={(v) =>
+                    setValue('ai_auto_call_new_leads', v, { shouldDirty: true })
+                  }
+                />
+              </label>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ai_calling_hours_start">Hours start (PKT)</Label>
+                  <Input
+                    id="ai_calling_hours_start"
+                    type="number"
+                    min={0}
+                    max={23}
+                    {...register('ai_calling_hours_start')}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ai_calling_hours_end">Hours end (PKT)</Label>
+                  <Input
+                    id="ai_calling_hours_end"
+                    type="number"
+                    min={0}
+                    max={23}
+                    {...register('ai_calling_hours_end')}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ai_max_calls_per_day">Max calls / day</Label>
+                  <Input
+                    id="ai_max_calls_per_day"
+                    type="number"
+                    min={0}
+                    {...register('ai_max_calls_per_day')}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-dashed border-border bg-surface-1 p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <PhoneOutgoing className="h-4 w-4 text-brand-primary" />
+                  <p className="text-sm font-medium text-text-primary">Place a test call</p>
+                </div>
+                <p className="text-xs text-text-secondary">
+                  Ring your own phone so you can hear the assistant. Works in dry-run too (just logs).
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="+923001234567"
+                    value={testCallPhone}
+                    onChange={(e) => setTestCallPhone(e.target.value)}
+                    className="font-mono text-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onTestCall}
+                    loading={isTestCalling}
+                  >
+                    Call now
+                  </Button>
+                </div>
+              </div>
+
+              <div className="rounded-md bg-brand-primary/5 border border-brand-primary/15 px-3 py-2 text-xs text-text-secondary">
+                <strong className="text-text-primary">Vapi webhook URL</strong> — paste this in your
+                Vapi Assistant → Server URL so call events stream back here:
+                <code className="mt-1 block truncate rounded bg-surface-2 px-2 py-1 font-mono">
+                  {(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000')}/api/vapi/webhook
+                </code>
+              </div>
+            </>
+          ) : null}
         </CardContent>
       </Card>
 

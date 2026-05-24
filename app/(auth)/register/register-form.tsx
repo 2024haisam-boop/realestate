@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,6 @@ import { registerSchema, type RegisterInput } from '@/lib/validations/user.schem
 import { registerAction } from '../actions';
 
 export function RegisterForm() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -28,15 +26,12 @@ export function RegisterForm() {
   const onSubmit = (values: RegisterInput) => {
     setServerError(null);
     startTransition(async () => {
+      // Server action redirects on success — we only land here on failure.
       const result = await registerAction(values);
-      if (!result.success) {
+      if (result && !result.success) {
         setServerError(result.error);
         toast.error(result.error);
-        return;
       }
-      toast.success('Workspace created');
-      router.push('/dashboard');
-      router.refresh();
     });
   };
 
@@ -46,7 +41,7 @@ export function RegisterForm() {
         <Label htmlFor="organizationName">Organization name</Label>
         <Input
           id="organizationName"
-          placeholder="Prestige Realty Pvt Ltd"
+          placeholder="Sapphire Estates (Pvt) Ltd"
           {...register('organizationName')}
         />
         {errors.organizationName ? (
@@ -56,7 +51,7 @@ export function RegisterForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="fullName">Your full name</Label>
-        <Input id="fullName" placeholder="Vikram Mehta" autoComplete="name" {...register('fullName')} />
+        <Input id="fullName" placeholder="Ahmed Khan" autoComplete="name" {...register('fullName')} />
         {errors.fullName ? (
           <p className="text-xs text-brand-danger">{errors.fullName.message}</p>
         ) : null}

@@ -1,14 +1,9 @@
 import { cache } from 'react';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import type { ProfileRow } from '@/lib/supabase/types';
 import type { SessionUser } from '@/lib/types';
 
-/**
- * Resolve the current authenticated user + their profile.
- * Returns null when there is no session or the profile row is missing.
- * Wrapped in React.cache so multiple server-component reads in one request
- * deduplicate to a single Supabase round-trip.
- */
 export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const supabase = await createClient();
   const {
@@ -22,7 +17,11 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (error || !profile || !profile.organization_id) return null;
+  if (error || !profile || !profile.organization_id) {
+    // Auth cookie is valid but profile is missing. loginAction self-heals
+    // this on next sign-in, so don't spam logs here.
+    return null;
+  }
 
   return {
     id: profile.id,
@@ -38,7 +37,7 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
 
 export async function requireSessionUser(): Promise<SessionUser> {
   const user = await getSessionUser();
-  if (!user) throw new Error('Not authenticated');
+  if (!user) redirect('/login');
   return user;
 }
 

@@ -84,11 +84,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           />
           <InfoRow
             label="Created"
-            value={new Date(lead.created_at).toLocaleString('en-IN')}
+            value={new Date(lead.created_at).toLocaleString('en-PK')}
           />
           <InfoRow
             label="Last contacted"
-            value={lead.last_contacted_at ? new Date(lead.last_contacted_at).toLocaleString('en-IN') : '—'}
+            value={lead.last_contacted_at ? new Date(lead.last_contacted_at).toLocaleString('en-PK') : '—'}
           />
           {lead.notes ? (
             <div className="sm:col-span-2">

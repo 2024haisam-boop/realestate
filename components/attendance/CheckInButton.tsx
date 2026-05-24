@@ -128,8 +128,8 @@ export function CheckInButton({ today }: CheckInButtonProps) {
           <div className="space-y-0.5">
             <p className="text-sm font-medium text-text-primary">Done for the day</p>
             <p className="text-xs text-text-muted">
-              In: <span className="font-mono">{new Date(today.check_in_time!).toLocaleTimeString('en-IN')}</span> ·
-              Out: <span className="font-mono">{new Date(today.check_out_time!).toLocaleTimeString('en-IN')}</span>
+              In: <span className="font-mono">{new Date(today.check_in_time!).toLocaleTimeString('en-PK')}</span> ·
+              Out: <span className="font-mono">{new Date(today.check_out_time!).toLocaleTimeString('en-PK')}</span>
             </p>
           </div>
           <Badge variant="success">Checked out</Badge>
@@ -145,7 +145,7 @@ export function CheckInButton({ today }: CheckInButtonProps) {
           <div className="space-y-0.5">
             <p className="text-sm font-medium text-text-primary">You&apos;re checked in</p>
             <p className="text-xs text-text-muted">
-              Since <span className="font-mono">{new Date(today.check_in_time!).toLocaleTimeString('en-IN')}</span>
+              Since <span className="font-mono">{new Date(today.check_in_time!).toLocaleTimeString('en-PK')}</span>
               {today.status === 'late' ? ' · Late' : ''}
             </p>
           </div>

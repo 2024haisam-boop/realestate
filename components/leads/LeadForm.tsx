@@ -154,11 +154,11 @@ export function LeadForm({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="budgetMin">Budget min (₹)</Label>
+          <Label htmlFor="budgetMin">Budget min (Rs)</Label>
           <Input id="budgetMin" type="number" inputMode="numeric" {...register('budgetMin')} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="budgetMax">Budget max (₹)</Label>
+          <Label htmlFor="budgetMax">Budget max (Rs)</Label>
           <Input id="budgetMax" type="number" inputMode="numeric" {...register('budgetMax')} />
         </div>
       </div>

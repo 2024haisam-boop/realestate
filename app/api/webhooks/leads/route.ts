@@ -5,6 +5,7 @@ import { createLead, findLeadByExternalId, updateLead } from '@/lib/db/leads';
 import { createActivity } from '@/lib/db/activities';
 import { assignAgent } from '@/lib/services/leadAssignmentService';
 import { bridgeCall } from '@/lib/services/callService';
+import { placeAiCall } from '@/lib/services/aiCallingService';
 import { leadWebhookSchema } from '@/lib/validations/webhook.schema';
 
 export const dynamic = 'force-dynamic';
@@ -107,13 +108,14 @@ export async function POST(request: NextRequest) {
     metadata: { source: payload.source ?? null, externalId: payload.externalId ?? null },
   });
 
-  // Look up assignment mode
+  // Look up assignment mode + AI calling flags.
   const { data: settings } = await admin
     .from('integration_settings')
-    .select('lead_assignment_mode')
+    .select('lead_assignment_mode, ai_calling_enabled, ai_auto_call_new_leads')
     .eq('organization_id', org.id)
     .maybeSingle();
   const mode = settings?.lead_assignment_mode ?? 'round_robin';
+  const aiWillCall = !!(settings?.ai_calling_enabled && settings?.ai_auto_call_new_leads);
 
   let assignedAgentName: string | null = null;
   let callTriggered = false;
@@ -148,8 +150,22 @@ export async function POST(request: NextRequest) {
       metadata: { leadId: lead.id } as never,
     });
 
-    // Bridge call (dry-run inside service if Twilio creds missing).
-    if (assignment.agent.phone) {
+    if (aiWillCall) {
+      // AI agent handles first contact; the human gets the lead in their
+      // pipeline and will be brought in only if the AI transfers (via the
+      // Vapi webhook → /api/vapi/webhook).
+      const aiResult = await placeAiCall({
+        organizationId: org.id,
+        leadId: lead.id,
+        leadName: payload.fullName,
+        leadPhone: payload.phone,
+      });
+      callTriggered = aiResult.success;
+      if (!aiResult.success) {
+        console.error('[webhooks/leads] AI call failed:', aiResult.error ?? aiResult.reason);
+      }
+    } else if (assignment.agent.phone) {
+      // Classic flow: bridge the agent directly to the lead.
       const bridgeResult = await bridgeCall({
         agentPhone: assignment.agent.phone,
         agentId: assignment.agentId,

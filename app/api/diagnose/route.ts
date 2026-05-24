@@ -66,14 +66,49 @@ export async function GET() {
     .filter(([, v]) => !v.exists)
     .map(([k]) => k);
 
+  // Also check whether auth users have matching profiles. This is the
+  // single most common cause of "login succeeds but dashboard kicks me out":
+  // an auth user with no row in `profiles` makes requireSessionUser redirect.
+  let authProfileSummary: {
+    authUserCount: number;
+    profileCount: number;
+    orphanedAuthUsers: { id: string; email: string | null }[];
+    orphanedProfiles: { id: string }[];
+  } | null = null;
+
+  if (missingTables.length === 0) {
+    try {
+      const { data: authList } = await admin.auth.admin.listUsers({ perPage: 200 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: profiles } = await (admin as any).from('profiles').select('id');
+      const authIds = new Set((authList?.users ?? []).map((u) => u.id));
+      const profileIds = new Set((profiles ?? []).map((p: { id: string }) => p.id));
+      authProfileSummary = {
+        authUserCount: authList?.users?.length ?? 0,
+        profileCount: profiles?.length ?? 0,
+        orphanedAuthUsers: (authList?.users ?? [])
+          .filter((u) => !profileIds.has(u.id))
+          .map((u) => ({ id: u.id, email: u.email ?? null })),
+        orphanedProfiles: (profiles ?? [])
+          .filter((p: { id: string }) => !authIds.has(p.id))
+          .map((p: { id: string }) => ({ id: p.id })),
+      };
+    } catch (e) {
+      console.error('[diagnose] auth/profile summary failed:', e);
+    }
+  }
+
   return NextResponse.json({
     ok: missingTables.length === 0,
     env,
     tables: tableResults,
     missingTables,
+    authProfileSummary,
     nextSteps:
-      missingTables.length === 0
-        ? 'All required tables exist. You should be able to sign up.'
-        : `Missing tables: ${missingTables.join(', ')}. Apply the migrations under supabase/migrations/ to your Supabase project.`,
+      missingTables.length > 0
+        ? `Missing tables: ${missingTables.join(', ')}. Apply the migrations under supabase/migrations/ to your Supabase project.`
+        : authProfileSummary && authProfileSummary.orphanedAuthUsers.length > 0
+          ? `You have ${authProfileSummary.orphanedAuthUsers.length} auth user(s) WITHOUT a matching profile row. Logging in as one of these will succeed but the dashboard will kick you to /login. Either DELETE those auth users (visit /api/diagnose/clean-orphans) or register a fresh account.`
+          : 'All required tables exist and auth users have matching profiles.',
   });
 }

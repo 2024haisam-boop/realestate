@@ -171,7 +171,7 @@ export function PropertyForm({
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="price">Price (₹)</Label>
+          <Label htmlFor="price">Price (Rs)</Label>
           <Input id="price" type="number" inputMode="numeric" {...register('price')} />
           {errors.price ? <p className="text-xs text-brand-danger">{errors.price.message}</p> : null}
         </div>

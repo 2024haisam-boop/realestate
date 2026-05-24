@@ -140,7 +140,7 @@ export function PostForm({ members, defaults, isPending, submitLabel = 'Save pos
           <Label htmlFor="caption">Caption</Label>
           <div className="flex items-center gap-2">
             <span className={`font-mono text-[11px] ${caption.length > charLimit ? 'text-brand-danger' : 'text-text-muted'}`}>
-              {caption.length}/{charLimit.toLocaleString('en-IN')}
+              {caption.length}/{charLimit.toLocaleString('en-PK')}
             </span>
             <Button variant="outline" size="sm" type="button" onClick={() => setAiOpen(true)}>
               <Sparkles className="h-3.5 w-3.5" />
