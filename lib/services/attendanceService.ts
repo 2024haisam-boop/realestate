@@ -6,8 +6,8 @@ import type { AttendanceStatus } from '@/lib/supabase/types';
  * Before 9:30 AM (configurable) → present.
  * After  9:30 AM → late.
  *
- * Uses the local server time in India by default; if you deploy to Vercel,
- * set TZ=Asia/Kolkata on the project for correct rounding.
+ * Uses the local server time by default; if you deploy to Vercel,
+ * set TZ=Asia/Karachi on the project for correct rounding.
  */
 export function classifyCheckIn(date: Date = new Date()): AttendanceStatus {
   const h = date.getHours();

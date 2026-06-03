@@ -225,7 +225,7 @@ export function PostForm({ members, defaults, isPending, submitLabel = 'Save pos
               rows={3}
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="e.g. New 3BHK launch in Powai with lake views, target young professionals"
+              placeholder="e.g. New 3-bedroom launch in Bahria Town Karachi with sea views, target young professionals"
             />
             <Button onClick={runAi} loading={aiPending} className="w-full" size="lg">
               <Sparkles className="h-4 w-4" />

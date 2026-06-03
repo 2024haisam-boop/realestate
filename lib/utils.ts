@@ -54,5 +54,5 @@ export function shortRelative(date: Date | string): string {
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString('en-IN');
+  return d.toLocaleDateString('en-PK');
 }

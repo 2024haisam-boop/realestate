@@ -102,14 +102,14 @@ export function PropertyForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="title">Title</Label>
-        <Input id="title" placeholder="Prestige Heights — 3BHK" {...register('title')} />
+        <Input id="title" placeholder="Bahria Heights — 3 Bedroom Apartment" {...register('title')} />
         {errors.title ? <p className="text-xs text-brand-danger">{errors.title.message}</p> : null}
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
-          <Input id="location" placeholder="Gurgaon" {...register('location')} />
+          <Input id="location" placeholder="DHA Phase 6, Karachi" {...register('location')} />
           {errors.location ? <p className="text-xs text-brand-danger">{errors.location.message}</p> : null}
         </div>
         <div className="space-y-1.5">
@@ -198,7 +198,7 @@ export function PropertyForm({
 
       <div className="space-y-1.5">
         <Label htmlFor="developerName">Developer</Label>
-        <Input id="developerName" placeholder="Prestige Group" {...register('developerName')} />
+        <Input id="developerName" placeholder="Bahria Town, Emaar, DHA…" {...register('developerName')} />
       </div>
 
       <div className="space-y-1.5">

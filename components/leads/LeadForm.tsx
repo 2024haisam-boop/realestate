@@ -95,7 +95,7 @@ export function LeadForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="preferredLocation">Preferred location</Label>
-          <Input id="preferredLocation" placeholder="Gurgaon, Powai…" {...register('preferredLocation')} />
+          <Input id="preferredLocation" placeholder="DHA Karachi, Bahria Town Lahore, F-7 Islamabad…" {...register('preferredLocation')} />
         </div>
       </div>
 
