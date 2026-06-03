@@ -36,6 +36,15 @@ function friendlySupabaseError(message: string): string {
   if (m.includes('email not confirmed')) {
     return 'Email confirmation is required. Disable "Confirm email" in Supabase → Authentication → Providers, or use a different email.';
   }
+  if (m === 'fetch failed' || m.includes('enotfound') || m.includes('getaddrinfo')) {
+    return 'Could not reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL on Vercel — make sure it has no trailing slash or whitespace, and matches your Supabase project URL exactly.';
+  }
+  if (m.includes('invalid api key') || m.includes('unauthorized')) {
+    return 'Supabase rejected the request. Check SUPABASE_SERVICE_ROLE_KEY on Vercel — it must be the service_role key, not the anon key.';
+  }
+  if (m.includes('jwt') || m.includes('jws')) {
+    return 'Supabase auth key looks malformed. Re-copy it from Supabase → Project Settings → API and paste fresh into Vercel.';
+  }
   return message;
 }
 
